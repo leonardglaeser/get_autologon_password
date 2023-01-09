@@ -26,13 +26,13 @@ fn get_secret_password()  {
             println!("ERROR: {ntstatus:?}");
         }
     }
-    println!("{lsa_pointer:?}");
+    println!("DEBUG: LSA HANDLE->{lsa_pointer:?}");
     // Retrieve the password
     let mut pwstr_keyname : Vec<u16> = "DefaultPassword".encode_utf16().collect();
     pwstr_keyname.push(0);
 
 
-    let mut keyname : UNICODE_STRING = UNICODE_STRING {
+    let keyname : UNICODE_STRING = UNICODE_STRING {
         Length: (unsafe { uaw_wcslen(pwstr_keyname.as_ptr()) } * size_of::<u16>())as u16,
         MaximumLength: (unsafe { uaw_wcslen(pwstr_keyname.as_ptr()) } * size_of::<u16>() +1)as u16,
         Buffer: PWSTR(pwstr_keyname.as_mut_ptr()),
@@ -47,14 +47,14 @@ fn get_secret_password()  {
     unsafe {
         let _ = LsaClose(lsa_pointer);
     }
-    let password :String =  unsafe {(*private_data).Buffer.to_owned().to_string().unwrap()} ;
+    let password :String =  unsafe {(*private_data).Buffer.to_string().unwrap()} ;
     println!("{password:?}");
 
-    let uitext = ("Password is:\n".to_string() + &password + "\0") ;
+    let uitext = "Password is:\n".to_string() + &password + "\0" ;
 
     let lptext : PCSTR = PCSTR(uitext.as_ptr());
     unsafe {
-        MessageBoxA(None,lptext, s!("Password"), MB_OK);
+        MessageBoxA(None,lptext, s!("Autologon Password"), MB_OK);
     }
 
 
